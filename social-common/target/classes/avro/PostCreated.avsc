@@ -1,0 +1,15 @@
+{
+  "name": "PostCreated",
+  "namespace": "io.petebids.social.domain",
+  "type": "record",
+  "fields": [
+    {
+      "name": "id",
+      "type": "string"
+    },
+    {
+      "name": "content",
+      "type": "string"
+    }
+  ]
+}

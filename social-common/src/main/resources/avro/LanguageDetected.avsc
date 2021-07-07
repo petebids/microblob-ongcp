@@ -1,0 +1,15 @@
+{
+  "namespace": "io.petebids.social.domain",
+  "type": "record",
+  "name": "LanguageDetected",
+  "fields": [
+    {
+      "name": "postId",
+      "type": "string"
+    },
+    {
+      "name": "language",
+      "type": "string"
+    }
+  ]
+}

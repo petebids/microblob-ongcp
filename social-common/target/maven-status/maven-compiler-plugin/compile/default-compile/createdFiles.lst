@@ -1,0 +1,6 @@
+io/petebids/social/domain/ProfanityDetected.class
+io/petebids/social/domain/PostCreated.class
+io/petebids/social/domain/PostCreated$Builder.class
+io/petebids/social/domain/LanguageDetected.class
+io/petebids/social/domain/LanguageDetected$Builder.class
+io/petebids/social/domain/ProfanityDetected$Builder.class
