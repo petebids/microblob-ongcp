@@ -1,7 +1,5 @@
 package io.petebids.sociallanguagedetect.model;
 
-import java.util.UUID;
-
 public class LanguageDetected {
 
     String postId;

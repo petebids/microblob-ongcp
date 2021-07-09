@@ -1,18 +1,18 @@
 app:
-    consumergroup: DetectLanguage
-    languagedetected:
-        topic: language-detected
-    postcreated:
-        topic: post-created
+  consumergroup: DetectLanguage
+  languagedetected:
+    topic: language-detected
+  postcreated:
+    topic: post-created
 spring:
   kafka:
-        consumer:
-            auto-offset-reset: earliest
-            bootstrap-servers: localhost:9092
-            group-id: DetectLanguage
+    consumer:
+      auto-offset-reset: earliest
+      bootstrap-servers: localhost:9092
+      group-id: DetectLanguage
 
-        producer:
-            bootstrap-servers: localhost:9092
+    producer:
+      bootstrap-servers: localhost:9092
   main:
     web-application-type: none
   jackson:
