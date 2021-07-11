@@ -11,13 +11,13 @@ public class LanguageDetectionConfig {
 
     @Bean
     LanguageDetector languageDetector() {
-        //@formatter:off
+
         return LanguageDetectorBuilder.fromLanguages(
-                        Language.ENGLISH,
-                        Language.LATIN,
-                        Language.FRENCH)
+                Language.ENGLISH,
+                Language.LATIN,
+                Language.FRENCH)
                 .build();
-        //@formatter:on
+
     }
 }
 

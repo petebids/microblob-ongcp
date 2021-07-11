@@ -1,0 +1,11 @@
+version: "3"
+services:
+  mongodb:
+    image: mongo
+    contianer_name: mongodb
+    ports:
+      - 27017:27017
+  persistence:
+    image: petebids.io/micrblog/social
+    container_name: 
+

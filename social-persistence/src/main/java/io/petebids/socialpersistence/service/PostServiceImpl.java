@@ -14,15 +14,17 @@ import io.petebids.socialpersistence.repository.PostRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
@@ -30,8 +32,8 @@ import java.util.concurrent.ExecutionException;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 @Service
-public class KafkaMongoPostService implements PostService {
-    Logger logger = LoggerFactory.getLogger(KafkaMongoPostService.class);
+public class PostServiceImpl implements PostService {
+    Logger logger = LoggerFactory.getLogger(PostServiceImpl.class);
 
     @Autowired
     KafkaTemplate<String, String> kafkaTemplate;
@@ -56,11 +58,21 @@ public class KafkaMongoPostService implements PostService {
     }
 
     @Override
+    public List<Post> getApprovedPosts() {
+        return postMapper.toPosts(postRepository.findApproved());
+
+    }
+
+    @Override
     public Post findById(String id) {
         logger.info("invoked with {}", id);
-        PostDocument document = postRepository.findById(id).get();
-        Post post = postMapper.toPost(document);
-        return post;
+        var optional = postRepository.findById(id);
+        if (!optional.isPresent()) {
+            throw new NoSuchElementException();
+        }
+        var document = optional.get();
+        return postMapper.toPost(document);
+
     }
 
     @Override
@@ -110,54 +122,51 @@ public class KafkaMongoPostService implements PostService {
     @KafkaListener(topics = "profanity-detected-v3", containerFactory = "kafkaListenerContainerFactory")
     public void handleProfanityDetected(String message) throws JsonProcessingException {
         logger.info("recieved {}", message);
-        ProfanityDetected profanityDetected = objectMapper.readValue(message, ProfanityDetected.class);
+        var profanityDetected = objectMapper.readValue(message, ProfanityDetected.class);
         logger.info("profanity detected {} ", profanityDetected);
-        PostDocument post = postRepository.findById(profanityDetected.getPostId()).get();
-        ProfanityInfo profanityInfo = new ProfanityInfo(profanityDetected.getProfane(), new Date());
+        var optional = postRepository.findById(profanityDetected.getPostId());
+        var post = optional.get();
+        var profanityInfo = new ProfanityInfo(profanityDetected.getProfane(), new Date());
         post.setProfanityInfo(profanityInfo);
         postRepository.save(post);
     }
 
-    @EventListener(ContextRefreshedEvent.class)
-    public void onApplicationEvent(ContextRefreshedEvent event) {
+    @EventListener(ApplicationReadyEvent.class)
+    public void onApplicationEvent(ApplicationReadyEvent event) {
         logger.info(event.toString());
         mongoTemplate.changeStream(PostDocument.class)
                 .watchCollection("postDocument")
                 .filter(where("opertaionType").is("insert"))
                 .listen()
-                .map(postDocumentChangeStreamEvent -> {
+                .flatMap(postDocumentChangeStreamEvent -> {
                     logger.info(postDocumentChangeStreamEvent.toString());
-                    PostDocument postDocument = postDocumentChangeStreamEvent.getBody();
-                    PostCreated postCreated = new PostCreated(postDocument.getId(), postDocument.getContent());
-                    String json = null;
-                    try {
-                        json = objectMapper.writeValueAsString(postCreated);
-                    } catch (JsonProcessingException e) {
-                        e.printStackTrace();
-                    }
-                    logger.info("created event {}", json);
-                    try {
-                        kafkaTemplate.send("post-created", json).get();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    } catch (ExecutionException e) {
-                        e.printStackTrace();
-                    }
-                    logger.info("event emiited");
+                    var postDocument = postDocumentChangeStreamEvent.getBody();
+                    emitPostCreated(postDocument);
                     return null;
                 });
 
 
     }
 
+    @Async
     @Override
-    public void emitPostCreated(Post post) throws JsonProcessingException, ExecutionException, InterruptedException {
-        PostCreated postCreated = new PostCreated(post.getId(), post.getContent());
-        String json = objectMapper.writeValueAsString(postCreated);
-        logger.info("created event {}", json);
-        kafkaTemplate.send("post-created", json).get();
-        logger.info("event emiited");
+    public void emitPostCreated(Post post) {
+        try {
+            PostCreated postCreated = new PostCreated(post.getId(), post.getContent());
+            String json = objectMapper.writeValueAsString(postCreated);
+            logger.info("created event {}", json);
+            kafkaTemplate.send("post-created", json).get();
+            logger.info("event emiited");
+        } catch (JsonProcessingException | ExecutionException | InterruptedException e) {
+            logger.error("failed to emit post creatred from change stream");
 
+        }
+
+    }
+
+    public void emitPostCreated(PostDocument postDocument) {
+        emitPostCreated(postMapper.toPost(postDocument));
+        return;
     }
 
 

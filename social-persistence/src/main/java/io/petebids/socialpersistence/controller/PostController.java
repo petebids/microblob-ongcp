@@ -1,7 +1,7 @@
 package io.petebids.socialpersistence.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import io.petebids.socialpersistence.model.document.PostDocument;
+import io.petebids.socialpersistence.model.domain.Post;
 import io.petebids.socialpersistence.service.PostService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -20,6 +21,7 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 @RestController
+@RequestMapping("/posts")
 public class PostController {
     Logger logger = LoggerFactory.getLogger(PostController.class);
 
@@ -27,37 +29,41 @@ public class PostController {
     PostService postService;
 
 
-    @GetMapping("/posts/{id}")
-    public ResponseEntity<PostDocument> getById(@PathVariable String id) {
+    @GetMapping("/{id}")
+    public ResponseEntity<Post> getById(@PathVariable String id) {
         logger.info("invoked with {}", id);
-        return new ResponseEntity<>(postService.findById(id), HttpStatus.OK);
+        Post post = postService.findById(id);
+        return new ResponseEntity<>(post, HttpStatus.OK);
     }
 
 
-    @GetMapping("/posts")
-    public ResponseEntity<List<PostDocument>> getAll() {
-        return new ResponseEntity<>(postService.getAllPosts(), HttpStatus.OK);
+    @GetMapping
+    public ResponseEntity<List<Post>> getAll() {
+        var allPosts = postService.getAllPosts();
+        logger.info("got {} posts", allPosts.size());
+        return new ResponseEntity<>(allPosts, HttpStatus.OK);
 
     }
 
-    @PostMapping("/posts")
-    public ResponseEntity<PostDocument> create(@RequestBody Map<String, String> requestBody) throws JsonProcessingException, ExecutionException, InterruptedException {
+    @PostMapping
+    public ResponseEntity<Post> create(@RequestBody Map<String, String> requestBody) throws JsonProcessingException, ExecutionException, InterruptedException {
         String content = requestBody.get("content");
         logger.info("invoked with {}", content);
-        return new ResponseEntity<>(postService.createPost(content), HttpStatus.CREATED);
+        var post = postService.createPost(content);
+        return new ResponseEntity<>(post, HttpStatus.CREATED);
     }
 
-    @DeleteMapping("/posts")
+    @DeleteMapping
     public ResponseEntity<Void> deleteAll() {
         postService.deleteAll();
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @PostMapping("/posts/push-language-detection")
-    public ResponseEntity<Void> pushLanguageDetection(){
-        postService.getAllPosts().forEach(postDocument -> {
+    @PostMapping("/push-language-detection")
+    public ResponseEntity<Void> pushLanguageDetection() {
+        postService.getAllPosts().forEach(post -> {
             try {
-                postService.emitPostCreated(postDocument);
+                postService.emitPostCreated(post);
             } catch (JsonProcessingException e) {
                 e.printStackTrace();
             } catch (ExecutionException e) {

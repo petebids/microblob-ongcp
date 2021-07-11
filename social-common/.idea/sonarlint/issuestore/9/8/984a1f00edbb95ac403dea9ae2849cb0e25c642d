@@ -1,0 +1,32 @@
+
+f	java:S117a"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(Ûùõú
+k	java:S117k"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(®•’ûÿÿÿÿ
+k	java:S117k"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(®•’ûÿÿÿÿ
+W
+java:S1128"ARemove this unused import 'org.apache.avro.generic.GenericArray'.(é¥œÿ
+F
+java:S2160"+Override the "equals" method in this class.(×¯›™ùÿÿÿÿ
+l
+java:S3008"QRename this field "MODEL$" to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(Å’æ›øÿÿÿÿ
+>
+java:S1948J"(Make "postId" transient or serializable.(è­í
+o
+java:S2293"YReplace the type specification in this constructor call with the diamond operator ("<>").(ñÊÁ¬
+o
+java:S2293"YReplace the type specification in this constructor call with the diamond operator ("<>").(•şÎõ
+o
+java:S22933"YReplace the type specification in this constructor call with the diamond operator ("<>").(Î–åÈ
+P
+java:S1161^":Add the "@Override" annotation above this method signature(Òâíø
+G
+java:S2160»"+Override the "equals" method in this class.(½³Øßøÿÿÿÿ
+K
+java:S6212¹"/Declare this local variable with "var" instead.(¾Å½·ÿÿÿÿÿ
+V
+java:S6213¹":Rename this variable to not match a restricted identifier.(¾Å½·ÿÿÿÿÿ
+J
+java:S1905Ç".Remove this unnecessary cast to "DatumWriter".(ªü„şÿÿÿÿ
+J
+java:S1905Ğ".Remove this unnecessary cast to "DatumReader".(‡š—ùÿÿÿÿ
+F
+java:S6212ì"/Declare this local variable with "var" instead.(¤×ñÂ

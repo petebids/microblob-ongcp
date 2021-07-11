@@ -21,12 +21,15 @@ public class PostDocument {
 
     ProfanityInfo profanityInfo;
 
-    public PostDocument(String id, Long version, String content, LanguageInfo languageInfo, ProfanityInfo profanityInfo) {
+    Boolean recommended;
+
+    public PostDocument(String id, Long version, String content, LanguageInfo languageInfo, ProfanityInfo profanityInfo, Boolean recommended) {
         this.id = id;
         this.version = version;
         this.content = content;
         this.languageInfo = languageInfo;
         this.profanityInfo = profanityInfo;
+        this.recommended = recommended;
     }
 
     public PostDocument() {
@@ -70,6 +73,14 @@ public class PostDocument {
 
     public void setProfanityInfo(ProfanityInfo profanityInfo) {
         this.profanityInfo = profanityInfo;
+    }
+
+    public Boolean getRecommended() {
+        return recommended;
+    }
+
+    public void setRecommended(Boolean recommended) {
+        this.recommended = recommended;
     }
 }
 

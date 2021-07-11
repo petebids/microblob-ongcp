@@ -4,6 +4,13 @@ app:
     topic: language-detected
   postcreated:
     topic: post-created
+  http:
+    enabled: false
+  amqp:
+    enabled: false
+  kafka:
+    enabled: yes
+
 spring:
   kafka:
     consumer:
